@@ -107,13 +107,13 @@
       .task-toolbar {
         display: flex;
         justify-content: flex-end;
+        gap: 0.75rem;
         margin-bottom: 0.75rem;
       }
 
       .task-toolbar button {
         margin-top: 0;
       }
-
       .task-item {
         display: flex;
         align-items: center;
@@ -208,6 +208,7 @@
         <p class="overdue-notice" id="overdueNotice" role="status" aria-live="polite" hidden></p>
         <div class="task-toolbar">
           <button id="sortTasks" type="button">按截止时间排序</button>
+          <button id="completeAllButton" type="button">全部完成</button>
         </div>
         <ul class="task-list" id="taskList">
           <li class="empty-state">添加任务后会显示在这里。</li>
@@ -224,6 +225,7 @@
       const saveStatus = document.querySelector("#saveStatus");
       const overdueNotice = document.querySelector("#overdueNotice");
       const sortTasksButton = document.querySelector("#sortTasks");
+      const completeAllButton = document.querySelector("#completeAllButton");
 
       function loadTasks() {
         try {
@@ -339,6 +341,7 @@
         renderTasks();
       });
 
+      completeAllButton.addEventListener("click", completeAllTasks);
       taskForm.addEventListener("submit", (event) => {
         event.preventDefault();
 
