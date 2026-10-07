@@ -220,6 +220,7 @@
 
       let tasks = loadTasks();
       let sortByDueDate = false;
+      let sortDirection = "asc";
 
       function renderTasks() {
         taskList.replaceChildren();
@@ -233,7 +234,10 @@
           : "";
 
         const visibleTasks = sortByDueDate
-          ? [...tasks].sort((first, second) => first.dueDate.localeCompare(second.dueDate))
+          ? [...tasks].sort((first, second) => {
+              const order = first.dueDate.localeCompare(second.dueDate);
+              return sortDirection === "asc" ? order : -order;
+            })
           : tasks;
 
         if (visibleTasks.length === 0) {
@@ -274,7 +278,16 @@
       }
 
       sortTasksButton.addEventListener("click", () => {
-        sortByDueDate = true;
+        if (sortByDueDate) {
+          sortDirection = sortDirection === "asc" ? "desc" : "asc";
+        } else {
+          sortByDueDate = true;
+          sortDirection = "asc";
+        }
+
+        sortTasksButton.textContent = sortDirection === "asc"
+          ? "切换为从晚到早"
+          : "切换为从早到晚";
         renderTasks();
       });
 
