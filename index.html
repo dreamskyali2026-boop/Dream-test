@@ -3,27 +3,149 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Git 练习页面</title>
+    <title>任务截止时间</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 3rem 1rem;
+        background: #f1f5f9;
+        color: #0f172a;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      header,
+      main {
+        width: min(100%, 720px);
+        margin-inline: auto;
+      }
+
+      header {
+        margin-bottom: 2rem;
+      }
+
+      h1 {
+        margin-bottom: 0.25rem;
+        font-size: clamp(2rem, 6vw, 2.75rem);
+      }
+
+      header p,
+      .hint,
+      .empty-state {
+        color: #64748b;
+      }
+
+      .panel {
+        margin-bottom: 1.25rem;
+        padding: 1.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 8px 24px rgb(15 23 42 / 6%);
+      }
+
+      h2 {
+        margin-top: 0;
+        font-size: 1.25rem;
+      }
+
+      .task-form {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      label {
+        font-weight: 600;
+      }
+
+      input {
+        width: 100%;
+        min-height: 2.75rem;
+        padding: 0.55rem 0.75rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.5rem;
+        background: #fff;
+        color: inherit;
+        font: inherit;
+      }
+
+      input:focus {
+        outline: 3px solid rgb(59 130 246 / 20%);
+        border-color: #3b82f6;
+      }
+
+      button {
+        justify-self: start;
+        margin-top: 0.5rem;
+        padding: 0.65rem 1rem;
+        border: 0;
+        border-radius: 0.5rem;
+        background: #2563eb;
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #1d4ed8;
+      }
+
+      .task-list {
+        display: grid;
+        gap: 0.75rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .task-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+      }
+
+      .task-due-date {
+        color: #475569;
+        white-space: nowrap;
+      }
+    </style>
   </head>
   <body>
     <header>
-      <h1>我的 Git 练习项目</h1>
-      <p>这是一个用来练习 Git 基本操作的小项目。</p>
+      <h1>任务截止时间</h1>
+      <p>记录待办事项和它们的截止日期。</p>
     </header>
 
     <main>
-      <section>
-        <h2>练习目标</h2>
-        <ul>
-          <li>查看文件状态并暂存更改</li>
-          <li>创建提交并查看提交记录</li>
-          <li>使用分支尝试修改，再合并更改</li>
-        </ul>
+      <section class="panel" aria-labelledby="form-title">
+        <h2 id="form-title">添加任务</h2>
+        <form class="task-form" id="taskForm">
+          <label for="taskTitle">任务名称</label>
+          <input id="taskTitle" name="taskTitle" type="text" placeholder="例如：完成 Git 练习" required>
+
+          <label for="dueDate">截止日期</label>
+          <input id="dueDate" name="dueDate" type="date" required>
+          <p class="hint">选择任务需要完成的日期。</p>
+
+          <button id="saveTask" type="button">保存任务</button>
+        </form>
       </section>
 
-      <section>
-        <h2>今天的记录</h2>
-        <p>在这里修改内容，然后用 Git 记录每一次变化。</p>
+      <section class="panel" aria-labelledby="tasks-title">
+        <h2 id="tasks-title">待办任务</h2>
+        <ul class="task-list" id="taskList">
+          <li class="empty-state">添加任务后会显示在这里。</li>
+        </ul>
       </section>
     </main>
   </body>
