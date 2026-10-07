@@ -104,6 +104,16 @@
         list-style: none;
       }
 
+      .task-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 0.75rem;
+      }
+
+      .task-toolbar button {
+        margin-top: 0;
+      }
+
       .task-item {
         display: flex;
         align-items: center;
@@ -176,6 +186,9 @@
       <section class="panel" aria-labelledby="tasks-title">
         <h2 id="tasks-title">待办任务</h2>
         <p class="overdue-notice" id="overdueNotice" role="status" aria-live="polite" hidden></p>
+        <div class="task-toolbar">
+          <button id="sortTasks" type="button">按截止时间排序</button>
+        </div>
         <ul class="task-list" id="taskList">
           <li class="empty-state">添加任务后会显示在这里。</li>
         </ul>
