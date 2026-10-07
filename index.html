@@ -129,6 +129,16 @@
         background: #fff7f7;
       }
 
+      .task-item.is-completed {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+      }
+
+      .task-item.is-completed .task-title {
+        color: #64748b;
+        text-decoration: line-through;
+      }
+
       .task-due-date {
         color: #475569;
         white-space: nowrap;
@@ -155,6 +165,16 @@
         border-radius: 999px;
         background: #fee2e2;
         color: #b91c1c;
+        font-size: 0.85rem;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .completed-badge {
+        padding: 0.1rem 0.55rem;
+        border-radius: 999px;
+        background: #dcfce7;
+        color: #166534;
         font-size: 0.85rem;
         font-weight: 700;
         white-space: nowrap;
@@ -222,12 +242,29 @@
       let sortByDueDate = false;
       let sortDirection = "asc";
 
+      function saveTasks(successMessage) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+          saveStatus.textContent = successMessage;
+        } catch {
+          saveStatus.textContent = "保存失败，请检查浏览器的本地存储设置。";
+        }
+      }
+
+      function completeAllTasks() {
+        if (tasks.length === 0) return;
+
+        tasks = tasks.map((task) => ({ ...task, completed: true }));
+        saveTasks("所有任务已标记为完成。");
+        renderTasks();
+      }
+
       function renderTasks() {
         taskList.replaceChildren();
 
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-        const overdueCount = tasks.filter((task) => task.dueDate < today).length;
+        const overdueCount = tasks.filter((task) => !task.completed && task.dueDate < today).length;
         overdueNotice.hidden = overdueCount === 0;
         overdueNotice.textContent = overdueCount > 0
           ? `提醒：有 ${overdueCount} 项任务已过期，请及时处理。`
@@ -250,10 +287,16 @@
 
         for (const task of visibleTasks) {
           const item = document.createElement("li");
-          const isOverdue = task.dueDate < today;
-          item.className = isOverdue ? "task-item is-overdue" : "task-item";
+          const isCompleted = task.completed === true;
+          const isOverdue = !isCompleted && task.dueDate < today;
+          item.className = isCompleted
+            ? "task-item is-completed"
+            : isOverdue
+              ? "task-item is-overdue"
+              : "task-item";
 
           const title = document.createElement("span");
+          title.className = "task-title";
           title.textContent = task.title;
 
           const dueDate = document.createElement("time");
@@ -265,7 +308,12 @@
           deadline.className = "task-deadline";
           deadline.append(dueDate);
 
-          if (isOverdue) {
+          if (isCompleted) {
+            const badge = document.createElement("span");
+            badge.className = "completed-badge";
+            badge.textContent = "已完成";
+            deadline.append(badge);
+          } else if (isOverdue) {
             const badge = document.createElement("span");
             badge.className = "overdue-badge";
             badge.textContent = "已过期";
@@ -298,14 +346,8 @@
         const dueDate = dueDateInput.value;
         if (!title || !dueDate) return;
 
-        tasks.push({ title, dueDate });
-
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-          saveStatus.textContent = "任务已保存在此浏览器中。";
-        } catch {
-          saveStatus.textContent = "保存失败，请检查浏览器的本地存储设置。";
-        }
+        tasks.push({ title, dueDate, completed: false });
+        saveTasks("任务已保存在此浏览器中。");
 
         renderTasks();
         taskForm.reset();
