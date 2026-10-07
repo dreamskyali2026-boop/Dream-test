@@ -114,8 +114,39 @@
         border-radius: 0.75rem;
       }
 
+      .task-item.is-overdue {
+        border-color: #fca5a5;
+        background: #fff7f7;
+      }
+
       .task-due-date {
         color: #475569;
+        white-space: nowrap;
+      }
+
+      .task-deadline {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .overdue-notice {
+        margin: 0 0 1rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid #fecaca;
+        border-radius: 0.5rem;
+        background: #fef2f2;
+        color: #b91c1c;
+        font-weight: 600;
+      }
+
+      .overdue-badge {
+        padding: 0.1rem 0.55rem;
+        border-radius: 999px;
+        background: #fee2e2;
+        color: #b91c1c;
+        font-size: 0.85rem;
+        font-weight: 700;
         white-space: nowrap;
       }
     </style>
@@ -144,6 +175,7 @@
 
       <section class="panel" aria-labelledby="tasks-title">
         <h2 id="tasks-title">待办任务</h2>
+        <p class="overdue-notice" id="overdueNotice" role="status" aria-live="polite" hidden></p>
         <ul class="task-list" id="taskList">
           <li class="empty-state">添加任务后会显示在这里。</li>
         </ul>
@@ -157,6 +189,7 @@
       const dueDateInput = document.querySelector("#dueDate");
       const taskList = document.querySelector("#taskList");
       const saveStatus = document.querySelector("#saveStatus");
+      const overdueNotice = document.querySelector("#overdueNotice");
 
       function loadTasks() {
         try {
@@ -176,6 +209,14 @@
       function renderTasks() {
         taskList.replaceChildren();
 
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+        const overdueCount = tasks.filter((task) => task.dueDate < today).length;
+        overdueNotice.hidden = overdueCount === 0;
+        overdueNotice.textContent = overdueCount > 0
+          ? `提醒：有 ${overdueCount} 项任务已过期，请及时处理。`
+          : "";
+
         if (tasks.length === 0) {
           const emptyState = document.createElement("li");
           emptyState.className = "empty-state";
@@ -186,7 +227,8 @@
 
         for (const task of tasks) {
           const item = document.createElement("li");
-          item.className = "task-item";
+          const isOverdue = task.dueDate < today;
+          item.className = isOverdue ? "task-item is-overdue" : "task-item";
 
           const title = document.createElement("span");
           title.textContent = task.title;
@@ -196,7 +238,18 @@
           dueDate.dateTime = task.dueDate;
           dueDate.textContent = `截止：${new Date(`${task.dueDate}T00:00:00`).toLocaleDateString("zh-CN")}`;
 
-          item.append(title, dueDate);
+          const deadline = document.createElement("span");
+          deadline.className = "task-deadline";
+          deadline.append(dueDate);
+
+          if (isOverdue) {
+            const badge = document.createElement("span");
+            badge.className = "overdue-badge";
+            badge.textContent = "已过期";
+            deadline.append(badge);
+          }
+
+          item.append(title, deadline);
           taskList.append(item);
         }
       }
