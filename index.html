@@ -137,7 +137,8 @@
           <input id="dueDate" name="dueDate" type="date" required>
           <p class="hint">选择任务需要完成的日期。</p>
 
-          <button id="saveTask" type="button">保存任务</button>
+          <button id="saveTask" type="submit">保存任务</button>
+          <p class="hint" id="saveStatus" role="status" aria-live="polite"></p>
         </form>
       </section>
 
@@ -148,5 +149,80 @@
         </ul>
       </section>
     </main>
+
+    <script>
+      const STORAGE_KEY = "due-date-tasks";
+      const taskForm = document.querySelector("#taskForm");
+      const taskTitleInput = document.querySelector("#taskTitle");
+      const dueDateInput = document.querySelector("#dueDate");
+      const taskList = document.querySelector("#taskList");
+      const saveStatus = document.querySelector("#saveStatus");
+
+      function loadTasks() {
+        try {
+          const savedTasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+          if (!Array.isArray(savedTasks)) return [];
+
+          return savedTasks.filter(
+            (task) => task && typeof task.title === "string" && typeof task.dueDate === "string"
+          );
+        } catch {
+          return [];
+        }
+      }
+
+      let tasks = loadTasks();
+
+      function renderTasks() {
+        taskList.replaceChildren();
+
+        if (tasks.length === 0) {
+          const emptyState = document.createElement("li");
+          emptyState.className = "empty-state";
+          emptyState.textContent = "添加任务后会显示在这里。";
+          taskList.append(emptyState);
+          return;
+        }
+
+        for (const task of tasks) {
+          const item = document.createElement("li");
+          item.className = "task-item";
+
+          const title = document.createElement("span");
+          title.textContent = task.title;
+
+          const dueDate = document.createElement("time");
+          dueDate.className = "task-due-date";
+          dueDate.dateTime = task.dueDate;
+          dueDate.textContent = `截止：${new Date(`${task.dueDate}T00:00:00`).toLocaleDateString("zh-CN")}`;
+
+          item.append(title, dueDate);
+          taskList.append(item);
+        }
+      }
+
+      taskForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const title = taskTitleInput.value.trim();
+        const dueDate = dueDateInput.value;
+        if (!title || !dueDate) return;
+
+        tasks.push({ title, dueDate });
+
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+          saveStatus.textContent = "任务已保存在此浏览器中。";
+        } catch {
+          saveStatus.textContent = "保存失败，请检查浏览器的本地存储设置。";
+        }
+
+        renderTasks();
+        taskForm.reset();
+        taskTitleInput.focus();
+      });
+
+      renderTasks();
+    </script>
   </body>
 </html>
