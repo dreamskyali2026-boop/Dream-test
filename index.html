@@ -203,6 +203,7 @@
       const taskList = document.querySelector("#taskList");
       const saveStatus = document.querySelector("#saveStatus");
       const overdueNotice = document.querySelector("#overdueNotice");
+      const sortTasksButton = document.querySelector("#sortTasks");
 
       function loadTasks() {
         try {
@@ -218,6 +219,7 @@
       }
 
       let tasks = loadTasks();
+      let sortByDueDate = false;
 
       function renderTasks() {
         taskList.replaceChildren();
@@ -230,7 +232,11 @@
           ? `提醒：有 ${overdueCount} 项任务已过期，请及时处理。`
           : "";
 
-        if (tasks.length === 0) {
+        const visibleTasks = sortByDueDate
+          ? [...tasks].sort((first, second) => first.dueDate.localeCompare(second.dueDate))
+          : tasks;
+
+        if (visibleTasks.length === 0) {
           const emptyState = document.createElement("li");
           emptyState.className = "empty-state";
           emptyState.textContent = "添加任务后会显示在这里。";
@@ -238,7 +244,7 @@
           return;
         }
 
-        for (const task of tasks) {
+        for (const task of visibleTasks) {
           const item = document.createElement("li");
           const isOverdue = task.dueDate < today;
           item.className = isOverdue ? "task-item is-overdue" : "task-item";
@@ -266,6 +272,11 @@
           taskList.append(item);
         }
       }
+
+      sortTasksButton.addEventListener("click", () => {
+        sortByDueDate = true;
+        renderTasks();
+      });
 
       taskForm.addEventListener("submit", (event) => {
         event.preventDefault();
